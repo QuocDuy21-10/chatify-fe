@@ -1,1 +1,90 @@
 @import "tailwindcss";
+
+@theme {
+  /* Color System */
+  --color-primary: #30e87a;
+  --color-primary-hover: #25c465;
+
+  /* Backgrounds */
+  --color-background-light: #f6f8f7;
+  --color-background-dark: #112117;
+  --color-background-darker: #111814;
+  --color-background-darkest: #0d1612;
+
+  /* Surfaces */
+  --color-surface-light: #ffffff;
+  --color-card-dark: #1a261f;
+  --color-card-dark-alt: #1a231e;
+  --color-surface-dark: #1a2620;
+  --color-surface-dark-alt: #1c2b24;
+  --color-surface-dark-alt2: #1a2c22;
+  --color-input-dark: #1c2620;
+
+  /* Borders */
+  --color-border-light: #e6e8e7;
+  --color-border-dark: #29382f;
+  --color-border-dark-hover: #3c5345;
+
+  /* Text */
+  --color-text-dark: #111814;
+  --color-text-secondary-light: #63756d;
+  --color-text-secondary-dark: #9db8a8;
+  --color-text-white: #ffffff;
+
+  /* Font Families */
+  --font-family-sans: "Spline Sans", "Noto Sans", system-ui, -apple-system,
+    sans-serif;
+
+  /* Radius */
+  --radius-sm: 0.25rem;
+  --radius: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-xl: 2rem;
+  --radius-2xl: 3rem;
+  --radius-full: 9999px;
+}
+
+@layer base {
+  * {
+    @apply border-border-light dark:border-border-dark;
+  }
+
+  body {
+    @apply bg-background-light dark:bg-background-dark text-text-dark dark:text-text-white;
+    font-family: var(--font-family-sans);
+  }
+
+  ::selection {
+    @apply bg-primary text-background-dark;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Typing indicator animation */
+  @keyframes bounce {
+    0%,
+    60%,
+    100% {
+      transform: translateY(0);
+    }
+    30% {
+      transform: translateY(-0.5rem);
+    }
+  }
+
+  .animate-bounce-dot {
+    animation: bounce 1.4s infinite ease-in-out both;
+  }
+
+  .animate-bounce-dot:nth-child(1) {
+    animation-delay: -0.32s;
+  }
+
+  .animate-bounce-dot:nth-child(2) {
+    animation-delay: -0.16s;
+  }
+}
