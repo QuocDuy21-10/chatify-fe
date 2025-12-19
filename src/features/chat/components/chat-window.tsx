@@ -28,6 +28,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onToggleSidebar }) => {
     [conversations, activeConversationId]
   );
 
+  // check lấy thông tin user còn lại
+  const otherParticipant = React.useMemo(() => {
+    if (!activeConversation || !currentUser) return null;
+    return activeConversation.participants.find(
+      (p) => p._id !== currentUser.id
+    );
+  }, [activeConversation, currentUser]);
+
   const conversationMessages = React.useMemo(() => {
     if (!activeConversationId) return [];
     const msgs = messages[activeConversationId];
@@ -98,20 +106,18 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onToggleSidebar }) => {
           </button>
 
           <Avatar
-            src={activeConversation.participants[0]?.avatar || undefined}
-            alt={activeConversation.participants[0]?.name || "User"}
+            src={otherParticipant?.avatar || undefined}
+            alt={otherParticipant?.name || "User"}
             size="md"
-            online={activeConversation.participants[0]?.isOnline}
+            online={otherParticipant?.isOnline}
           />
 
           <div>
             <h3 className="font-semibold text-text-dark dark:text-text-white">
-              {activeConversation.participants[0]?.name || "User"}
+              {otherParticipant?.name || "User"}
             </h3>
             <p className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-              {activeConversation.participants[0]?.isOnline
-                ? "Online"
-                : "Offline"}
+              {otherParticipant?.isOnline ? "Online" : "Offline"}
             </p>
           </div>
         </div>
@@ -168,8 +174,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onToggleSidebar }) => {
       {/* Message Input */}
       <MessageInput
         onSendMessage={handleSendMessage}
-        isTyping={isTyping[activeConversation.participants[0]?._id]}
-        typingUser={activeConversation.participants[0]?.name}
+        isTyping={
+          otherParticipant?._id ? isTyping[otherParticipant._id] : false
+        }
+        typingUser={otherParticipant?.name}
       />
     </div>
   );

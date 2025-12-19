@@ -4,8 +4,10 @@ import type { Message, Pagination } from "@/types/chat";
 export interface MessagesResponse {
   statusCode: number;
   message: string | null;
-  data: Message[];
-  pagination: Pagination;
+  data: {
+    data: Message[];
+    pagination: Pagination;
+  };
 }
 
 export interface SendMessageRequest {
@@ -32,7 +34,7 @@ export async function getMessages(conversationId: string): Promise<Message[]> {
   const response = await api.get<MessagesResponse>(
     `/conversations/${conversationId}/messages`
   );
-  return response.data.data || [];
+  return response.data.data.data || [];
 }
 
 /**

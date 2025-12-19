@@ -3,26 +3,38 @@ import { Smile, Paperclip, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { useAuthStore } from "@/stores/auth.store";
+import { useChatStore } from "@/stores/chat.store";
 
 interface MessageInputProps {
-  onSendMessage: (content: string) => void;
   isTyping?: boolean;
   typingUser?: string;
 }
 
 export const MessageInput: React.FC<MessageInputProps> = ({
-  onSendMessage,
   isTyping,
   typingUser,
 }) => {
   const [message, setMessage] = React.useState("");
+  const [isSending, setIsSending] = React.useState(false);
   const user = useAuthStore((state) => state.user);
+  const activeConversationId = useChatStore(
+    (state) => state.activeConversationId
+  );
+  const sendMessage = useChatStore((state) => state.sendMessage);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (message.trim()) {
-      onSendMessage(message.trim());
+    if (!message.trim() || !activeConversationId || isSending) return;
+
+    setIsSending(true);
+    try {
+      await sendMessage(activeConversationId, message.trim());
       setMessage("");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      // TODO: Show error notification to user
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -109,7 +121,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({
             type="submit"
             size="icon"
             variant="primary"
-            disabled={!message.trim()}
+            disabled={!message.trim() || isSending || !activeConversationId}
             className="mb-2"
           >
             <Send className="size-5" />

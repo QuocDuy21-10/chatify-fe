@@ -3,6 +3,7 @@ import { Search, Plus } from "lucide-react";
 import { ChatItem } from "@/components/ui/chat-item";
 import { Button } from "@/components/ui/button";
 import { useChatStore } from "@/stores/chat.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { useLoadConversations } from "@/features/chat/hooks/useChat";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +16,7 @@ export const ConversationSidebar: React.FC = () => {
   // Load conversations từ API khi component mount
   useLoadConversations();
 
+  const currentUser = useAuthStore((state) => state.user);
   const { conversations, activeConversationId, setActiveConversation } =
     useChatStore();
 
@@ -116,8 +118,10 @@ export const ConversationSidebar: React.FC = () => {
       <div className="flex-1 overflow-y-auto">
         {filteredConversations.length > 0 ? (
           filteredConversations.map((conversation) => {
-            // Get the first participant (in a 1-1 chat, this is the other user)
-            const participant = conversation.participants[0];
+            // check lấy thông tin user còn lại
+            const participant = conversation.participants.find(
+              (p) => p._id !== currentUser?.id
+            );
 
             return (
               <ChatItem

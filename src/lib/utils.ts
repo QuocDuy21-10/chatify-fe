@@ -6,7 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatTime(date: Date | string): string {
+  if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "";
+
   const hours = d.getHours();
   const minutes = d.getMinutes();
   const ampm = hours >= 12 ? "PM" : "AM";
@@ -16,7 +19,10 @@ export function formatTime(date: Date | string): string {
 }
 
 export function formatDate(date: Date | string): string {
+  if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "";
+
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
@@ -35,7 +41,10 @@ export function formatDate(date: Date | string): string {
 }
 
 export function formatLastSeen(date: Date | string): string {
+  if (!date) return "";
   const d = typeof date === "string" ? new Date(date) : date;
+  if (isNaN(d.getTime())) return "";
+
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - d.getTime()) / 1000);
 
