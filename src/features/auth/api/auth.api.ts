@@ -50,3 +50,7 @@ export async function refreshToken(
   );
   return response.data;
 }
+
+export async function logout(): Promise<void> {
+  await api.post("/auth/logout", {}, { withCredentials: true });
+}

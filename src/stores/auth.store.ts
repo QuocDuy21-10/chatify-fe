@@ -2,11 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AuthState } from "@/types/auth";
 import * as authApi from "@/features/auth/api/auth.api";
-import { socket } from "@/lib/socket";
+import { socket, disconnectSocket } from "@/lib/socket";
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>()(
           const response = await authApi.login({ email, password });
 
           localStorage.setItem("access_token", response.data.access_token);
-          console.log(response.data.access_token);
+          console.log("Token saved:", response.data.access_token);
 
           const user = {
             id: response.data.user._id,
@@ -38,6 +38,7 @@ export const useAuthStore = create<AuthState>()(
           // Kết nối Socket.io sau khi đăng nhập thành công
           socket.auth = { token: response.data.access_token };
           socket.connect();
+          console.log("Socket connecting after login...");
         } catch (error: any) {
           set({ isLoading: false });
           throw new Error(error.response?.data?.message || "Login failed");
@@ -74,11 +75,17 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
+      logout: async () => {
+        try {
+          await authApi.logout();
+        } catch (error) {
+          console.error("Logout API failed:", error);
+        }
+
         localStorage.removeItem("access_token");
 
         // Ngắt kết nối Socket.io
-        socket.disconnect();
+        disconnectSocket();
 
         set({
           user: null,
