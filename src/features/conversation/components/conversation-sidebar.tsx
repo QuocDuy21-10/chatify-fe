@@ -2,6 +2,8 @@ import * as React from "react";
 import { Search, Plus } from "lucide-react";
 import { ChatItem } from "@/components/ui/chat-item";
 import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
+import { UserMenu } from "@/components/ui/user-menu";
 import { useChatStore } from "@/stores/chat.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { useLoadConversations } from "@/features/chat/hooks/useChat";
@@ -12,11 +14,14 @@ type FilterTab = "all" | "unread" | "groups";
 export const ConversationSidebar: React.FC = () => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [activeFilter, setActiveFilter] = React.useState<FilterTab>("all");
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const avatarRef = React.useRef<HTMLDivElement>(null);
 
   // Load conversations từ API khi component mount
   useLoadConversations();
 
   const currentUser = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const { conversations, activeConversationId, setActiveConversation } =
     useChatStore();
 
@@ -51,17 +56,64 @@ export const ConversationSidebar: React.FC = () => {
     });
   }, [conversations, searchQuery, activeFilter]);
 
+  const handleSettings = () => {
+    // TODO: Navigate to settings page or open settings modal
+    console.log("Navigate to settings");
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      // Router sẽ tự động redirect về login page
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <div className="w-full md:w-100 h-full flex flex-col bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark">
       {/* Header */}
       <div className="p-6 border-b border-border-light dark:border-border-dark">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-text-dark dark:text-text-white">
-            Messages
-          </h2>
-          <Button size="icon" variant="primary">
-            <Plus className="size-5" />
-          </Button>
+        {/* User Avatar & Title Row */}
+        <div className="flex items-center gap-4 mb-4">
+          {/* User Avatar with Menu */}
+          <div className="relative">
+            <div
+              ref={avatarRef}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+              role="button"
+              aria-label="User menu"
+              aria-expanded={isMenuOpen}
+              aria-haspopup="true"
+            >
+              <Avatar
+                src={currentUser?.avatar}
+                alt={currentUser?.name || "User"}
+                size="md"
+                online={currentUser?.online}
+              />
+            </div>
+
+            {/* Dropdown Menu */}
+            <UserMenu
+              isOpen={isMenuOpen}
+              onClose={() => setIsMenuOpen(false)}
+              onSettings={handleSettings}
+              onLogout={handleLogout}
+              anchorRef={avatarRef}
+            />
+          </div>
+
+          {/* Title & New Chat Button */}
+          <div className="flex-1 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-text-dark dark:text-text-white">
+              Messages
+            </h2>
+            <Button size="icon" variant="primary">
+              <Plus className="size-5" />
+            </Button>
+          </div>
         </div>
 
         {/* Search Bar */}

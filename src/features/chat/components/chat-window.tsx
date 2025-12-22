@@ -15,13 +15,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onToggleSidebar }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const currentUser = useAuthStore((state) => state.user);
 
-  const {
-    conversations,
-    messages,
-    activeConversationId,
-    isTyping,
-    sendMessage,
-  } = useChatStore();
+  const { conversations, messages, activeConversationId, isTyping } =
+    useChatStore();
 
   const activeConversation = React.useMemo(
     () => conversations.find((c) => c._id === activeConversationId),
@@ -59,15 +54,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onToggleSidebar }) => {
 
     return groups;
   }, [conversationMessages]);
-
-  const handleSendMessage = React.useCallback(
-    (content: string) => {
-      if (activeConversationId) {
-        sendMessage(activeConversationId, content);
-      }
-    },
-    [activeConversationId, sendMessage]
-  );
 
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -173,7 +159,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onToggleSidebar }) => {
 
       {/* Message Input */}
       <MessageInput
-        onSendMessage={handleSendMessage}
         isTyping={
           otherParticipant?._id ? isTyping[otherParticipant._id] : false
         }

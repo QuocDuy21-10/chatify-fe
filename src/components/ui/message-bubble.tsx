@@ -19,7 +19,7 @@ export interface MessageBubbleProps {
 
 const MessageBubble = React.forwardRef<HTMLDivElement, MessageBubbleProps>(
   (
-    { id, content, timestamp, sender, isSent = false, type = "text", imageUrl },
+    { content, timestamp, sender, isSent = false, type = "text", imageUrl },
     ref
   ) => {
     return (
