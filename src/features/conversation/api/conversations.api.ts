@@ -8,7 +8,6 @@ import type {
 
 export async function getConversations(): Promise<Conversation[]> {
   const response = await api.get<ConversationsResponse>("/conversations");
-  console.log("Conversations API Response:", response.data);
   return response.data.data || [];
 }
 

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { ChatState, Message, Conversation } from "@/types/chat";
 import * as conversationsApi from "@/features/conversation/api/conversations.api";
 import * as messagesApi from "@/features/chat/api/messages.api";
+import { joinConversation, leaveConversation } from "@/lib/socket";
 
 export const useChatStore = create<ChatState>((set, get) => ({
   conversations: [],
@@ -59,10 +60,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   // Chọn conversation active
   setActiveConversation: (conversationId: string | null) => {
+    const previousConversationId = get().activeConversationId;
+
+    // Leave previous conversation room
+    if (previousConversationId && previousConversationId !== conversationId) {
+      leaveConversation(previousConversationId);
+    }
+
     set({ activeConversationId: conversationId });
 
     // Load messages và mark as read khi mở conversation
     if (conversationId) {
+      // Join room để nhận real-time messages
+      joinConversation(conversationId);
+
       const messages = get().messages[conversationId];
       if (!messages || messages.length === 0) {
         get().loadMessages(conversationId);
@@ -96,15 +107,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
         receiverId,
       });
 
-      // Thêm message vào state ( webSocket sẽ update realtime)
+      console.log("Message sent via API:", message._id);
+
+      // Chỉ update lastMessage trong conversation list
       set((state) => ({
-        messages: {
-          ...state.messages,
-          [conversationId]: [
-            ...(state.messages[conversationId] || []),
-            message,
-          ],
-        },
         conversations: state.conversations.map((conv) =>
           conv._id === conversationId
             ? {
